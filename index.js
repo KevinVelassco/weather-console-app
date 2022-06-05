@@ -7,6 +7,7 @@ const {
   createSubmenu,
 } = require("./helpers/inquirer");
 const Mapbox = require("./services/mapbox.service");
+const OpenWheather = require("./services/openweather");
 
 const main = async () => {
   const questions = [
@@ -32,6 +33,7 @@ const main = async () => {
   ];
 
   const mapbox = new Mapbox();
+  const openWheather = new OpenWheather();
   let option = 0;
 
   do {
@@ -54,13 +56,21 @@ const main = async () => {
           (res) => res.id === placeId
         );
 
+        const { description, temp, temp_min, temp_max } =
+          await openWheather.getCurrentWeatherData({
+            lat: latitude,
+            lon: longitude,
+          });
+
+        console.clear();
         console.log("\nCity Information\n".green);
         console.log("City:", name);
         console.log("Latitude:", latitude);
         console.log("Longitude:", longitude);
-        console.log("temperature:");
-        console.log("Minimal:");
-        console.log("maximum:");
+        console.log("temperature:", temp);
+        console.log("Minimal:", temp_min);
+        console.log("maximum:", temp_max);
+        console.log("What's the weather like:", description);
         break;
     }
 
