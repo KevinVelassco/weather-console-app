@@ -36,8 +36,32 @@ const input = async (message) => {
   return input;
 };
 
+const createSubmenu = async (questions = []) => {
+  if (!questions.length) {
+    console.log("no menu data".red);
+    return null;
+  }
+
+  const choices = questions.map((question, index) => ({
+    value: question.id,
+    name: `${String(index + 1).green}. ${question.name}`,
+  }));
+
+  choices.unshift({ value: 0, name: `${"0. cancel".blue}` });
+
+  const { option } = await inquirer.prompt({
+    type: "list",
+    name: "option",
+    message: "select an option!",
+    choices,
+  });
+
+  return option;
+};
+
 module.exports = {
   createMenu,
   pause,
   input,
+  createSubmenu,
 };
