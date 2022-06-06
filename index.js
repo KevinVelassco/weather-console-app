@@ -6,6 +6,7 @@ const {
   input,
   createSubmenu,
 } = require("./helpers/inquirer");
+const { saveFile, readBD } = require("./helpers/saveFile");
 const Mapbox = require("./services/mapbox.service");
 const OpenWheather = require("./services/openweather");
 
@@ -34,6 +35,7 @@ const main = async () => {
 
   const mapbox = new Mapbox();
   const openWheather = new OpenWheather();
+  const history = readBD();
   let option = 0;
 
   do {
@@ -56,6 +58,10 @@ const main = async () => {
           (res) => res.id === placeId
         );
 
+        if (history.length > 4) history.pop();
+
+        history.unshift({ name, sysdate: new Date().toISOString() });
+
         const { description, temp, temp_min, temp_max } =
           await openWheather.getCurrentWeatherData({
             lat: latitude,
@@ -72,7 +78,15 @@ const main = async () => {
         console.log("maximum:", temp_max);
         console.log("What's the weather like:", description);
         break;
+      case 2:
+        history.forEach((data, index) =>
+          console.log(
+            `\n${String(index + 1).green} ${data.name} ${data.sysdate.green}`
+          )
+        );
     }
+
+    saveFile(history);
 
     if (option !== 0) await pause();
   } while (option !== 0);
